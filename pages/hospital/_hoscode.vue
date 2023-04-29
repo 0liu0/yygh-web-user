@@ -142,7 +142,8 @@
 <script>
 import "~/assets/css/hospital_personal.css";
 import "~/assets/css/hospital.css";
-import cookie from "js-cookie";
+import cookie from "js-cookie"; //引入cookie
+import userInfoApi from "@/api/yygh/userInfo";
 
 import hospitalApi from "@/api/yygh/hospital";
 
@@ -181,6 +182,17 @@ export default {
         loginEvent.$emit("loginDialogEvent");
         return;
       }
+
+      //判断认证
+      userInfoApi.getUserInfo().then(response => {
+        let authStatus = response.data.userInfo.authStatus;
+        // 状态为2认证通过
+        if (!authStatus || authStatus != 2) {
+          window.location.href = "/user";
+          return;
+        }
+      });
+
       window.location.href =
         "/hospital/schedule?hoscode=" +
         this.hospital.hoscode +
