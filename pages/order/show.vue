@@ -95,7 +95,7 @@
       </div>
     </div><!-- 右侧内容 #end -->
     <!-- 微信支付弹出框 -->
-    <el-dialog :visible.sync="dialogPayVisible" style="text-align: left" :append-to-body="true" width="500px" @closed="closeDialog">
+    <el-dialog :visible.sync="dialogPayVisible" style="text-align: left" :append-to-body="true" width="500px" @close="closeDialog">
       <div class="container">
         <div class="operate-view" style="height: 350px;">
           <div class="wrapper wechat">
@@ -146,8 +146,26 @@ export default {
         if(this.payObj.codeUrl == '') {
           this.dialogPayVisible = false
           this.$message.error("支付错误")
-        } 
+        } else {
+          this.timer = setInterval(() => {
+            this.queryPayStatus(this.orderId)
+          }, 3000);
+        }
       })
+    },
+    queryPayStatus(orderId) {
+      weixinApi.queryPayStatus(orderId).then(response => {
+        if (response.message == '支付中') {
+          return
+        }
+        clearInterval(this.timer);
+        window.location.reload()
+      })
+    },
+    closeDialog() {
+      if(this.timer) {
+        clearInterval(this.timer);
+      }
     }
   }
 }
